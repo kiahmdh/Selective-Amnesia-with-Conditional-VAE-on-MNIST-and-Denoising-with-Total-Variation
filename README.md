@@ -63,22 +63,6 @@ and re‑running the **Fisher** and **Selective Amnesia** cells.
 
 ---
 
-## Reproducibility
-- Set seeds if you need bit‑level repeatability:
-```python
-import torch, numpy as np, random
-seed = 42
-random.seed(seed); np.random.seed(seed); torch.manual_seed(seed)
-torch.cuda.manual_seed_all(seed); torch.use_deterministic_algorithms(False)
-```
-- MNIST is downloaded automatically by `torchvision.datasets`.
-
-
-
-## Acknowledgments
-- **Selective Amnesia (SA)** idea and training loop adapted from the CLEAR/NUS examples.
-- **EWC**: Kirkpatrick et al., *Overcoming catastrophic forgetting in neural networks*, PNAS 2017.
-- MNIST dataset via `torchvision`.
 
 
 
@@ -120,5 +104,10 @@ Open **Section “Recovery / Re‑learn (Optional)”** in the notebook and exec
 - Quality depends on **EWC strength**—if forgetting was too strong, feasible \( z^* \) may no longer produce clean digits.  
 - TV alone tends to **oversmooth** or miss semantics; **baseline guidance** anchors latents on a plausible manifold, improving fidelity.
 
+
+## Acknowledgments
+- **Selective Amnesia (SA)** idea and training loop adapted from the CLEAR/NUS examples.
+- **EWC**: Kirkpatrick et al., *Overcoming catastrophic forgetting in neural networks*, PNAS 2017.
+- MNIST dataset via `torchvision`.
 
 
