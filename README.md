@@ -1,4 +1,4 @@
-# Selective-Amnesia-with-Conditional-VAE-on-MNIST-and-Denoising-with-Total-Variation
+# Selective Amnesia (SA) on a Conditional VAE (MNIST)
 
 Forget a target concept **without** retraining from scratch.
 
@@ -139,3 +139,49 @@ If you use this code in academic work, please cite the original SA/EWC works as 
   url          = {https://github.com/yourname/sa-cvae-mnist}
 }
 ```
+
+---
+
+## Part 2 — (Optional) “Recovery / Re‑learn” Experiments
+
+> The notebook also includes **post‑hoc recovery** experiments to see whether we can make the forgotten class *appear* again **without** re‑training weights. This is purely inference‑time optimization; model parameters stay fixed.
+
+### Variants
+
+**A) Baseline‑guided latent inversion + TV denoising (best)**  
+1) **Sample exemplars from the baseline cVAE** for the target class *c* (e.g., 3).  
+2) **Find latent codes** for those exemplars (via the baseline encoder or short latent optimization) to obtain \( z^* \).  
+3) **Feed** \((z^*, y=c)\) into the *forgotten* model, then **apply a few steps of pixel‑space denoising** with **total variation (TV)** to suppress artifacts and encourage smooth strokes.  
+4) (Optional) Add a very **weak classifier guidance** term using a frozen MNIST classifier to nudge semantics without re‑training.
+
+*Observed:* This variant consistently produces the most class‑faithful, low‑noise images among our tests, recovering “3”‑like structure without re‑introducing training on class 3.
+
+**B) TV denoising only (no baseline guidance)**  
+Initialize \( z \sim \mathcal{N}(0, I) \) and optimize pixel objective + TV at inference time.  
+*Observed:* Results are **noisier** and less semantically aligned with the target digit (often not convincingly a “3”).
+
+### How to run
+Open **Section “Recovery / Re‑learn (Optional)”** in the notebook and execute the corresponding cells for **Variant A** or **Variant B** (labeled in markdown). You can change:
+- `RECOVERY_STEPS`, `LR_Z`: steps and step size for latent optimization.
+- `TV_WEIGHT`: total variation strength.
+- `GUIDE_WEIGHT`: (optional) frozen‑classifier guidance weight.
+
+> These flags are defined in the recovery cells; adjust as needed for your runs.
+
+### Quick evaluation
+- **Frozen classifier accuracy** on generated samples of the target class.  
+- **FID/KID in LeNet feature space** (cheap “Inception‑like” proxy for MNIST).  
+- **Ink/contrast metrics** (mean |x−0.5|) to avoid re‑introducing high‑ink “cheats.”  
+- **Human grids** for qualitative inspection.
+
+### Notes & limitations
+- Inference‑time recovery **does not modify weights**, so it cannot fully undo SA; it just searches for “surviving” latents/manifolds the model still supports.  
+- Quality depends on **EWC strength**—if forgetting was too strong, feasible \( z^* \) may no longer produce clean digits.  
+- TV alone tends to **oversmooth** or miss semantics; **baseline guidance** anchors latents on a plausible manifold, improving fidelity.
+
+### Ideas to try (if you iterate)
+- Add a small **LPIPS** (learned perceptual) term vs. baseline exemplars (feature‑matching, no weight updates).  
+- **Latent consistency** penalty: keep recovered \( z^* \) close to the baseline‑inferred latents.  
+- **Entropy/ink regularizers** to avoid degenerate high‑contrast artifacts.  
+- Swap TV‑L2 for **Huber/Charbonnier** TV for sharper edges.
+
