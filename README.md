@@ -16,40 +16,6 @@ This notebook implements a lightweight version of **Selective Amnesia (SA)** for
 
 ---
 
-## Why this repo?
-Machine unlearning is expensive if you have to retrain. SA shows how to *surgically remove* a concept by regularizing toward the baseline on important parameters (EWC) while discouraging evidence for the target concept (gray/low‑ink reconstructions, optional orientation‑entropy regularizer).
-
-This notebook adapts the core idea from the CLEAR/NUS **Selective Amnesia** VAE example and standard **EWC** (Kirkpatrick et al., 2017).
-
----
-
-## Repo structure
-```
-.
-├── SA.ipynb        # End-to-end: train baseline, compute Fisher, unlearn, visualize
-└── checkpoints/    # Saved PyTorch state_dicts (created on first run)
-```
-> Checkpoints saved as:
-> - `checkpoints/vae_baseline.pt`
-> - `checkpoints/vae_forget_{FORGET_CLASS}.pt`
-
----
-
-## Requirements
-- Python ≥ 3.9
-- PyTorch, TorchVision
-- NumPy
-- Matplotlib
-- tqdm
-
-Minimal install (CPU or CUDA as available):
-```bash
-pip install torch torchvision numpy matplotlib tqdm
-```
-
-The first cell of the notebook also does a quick `pip install` for Colab usage.
-
----
 
 ## Quickstart
 1. **Open the notebook** `SA.ipynb` (locally or in Colab).
@@ -107,42 +73,17 @@ torch.cuda.manual_seed_all(seed); torch.use_deterministic_algorithms(False)
 ```
 - MNIST is downloaded automatically by `torchvision.datasets`.
 
----
 
-## Caveats
-- This is a **single‑file, pedagogical** implementation meant for clarity and iteration, not production use.
-- EWC uses a **diagonal** Fisher estimate; more accurate approximations can be explored.
-- Unlearning is **task/model/dataset‑specific**; always validate with downstream metrics relevant to your use case.
-
----
 
 ## Acknowledgments
 - **Selective Amnesia (SA)** idea and training loop adapted from the CLEAR/NUS examples.
 - **EWC**: Kirkpatrick et al., *Overcoming catastrophic forgetting in neural networks*, PNAS 2017.
 - MNIST dataset via `torchvision`.
 
----
 
-## License
-Add a LICENSE file (e.g., MIT) to this repository.
 
----
 
-## Citation
-If you use this code in academic work, please cite the original SA/EWC works as appropriate, and optionally this repository:
-
-```
-@software{sa_cvae_mnist,
-  title        = {Selective Amnesia on a Conditional VAE (MNIST)},
-  author       = {Your Name},
-  year         = {2025},
-  url          = {https://github.com/yourname/sa-cvae-mnist}
-}
-```
-
----
-
-## Part 2 — (Optional) “Recovery / Re‑learn” Experiments
+## Part 2 — “Recovery / Re‑learn” Experiments
 
 > The notebook also includes **post‑hoc recovery** experiments to see whether we can make the forgotten class *appear* again **without** re‑training weights. This is purely inference‑time optimization; model parameters stay fixed.
 
@@ -179,9 +120,5 @@ Open **Section “Recovery / Re‑learn (Optional)”** in the notebook and exec
 - Quality depends on **EWC strength**—if forgetting was too strong, feasible \( z^* \) may no longer produce clean digits.  
 - TV alone tends to **oversmooth** or miss semantics; **baseline guidance** anchors latents on a plausible manifold, improving fidelity.
 
-### Ideas to try (if you iterate)
-- Add a small **LPIPS** (learned perceptual) term vs. baseline exemplars (feature‑matching, no weight updates).  
-- **Latent consistency** penalty: keep recovered \( z^* \) close to the baseline‑inferred latents.  
-- **Entropy/ink regularizers** to avoid degenerate high‑contrast artifacts.  
-- Swap TV‑L2 for **Huber/Charbonnier** TV for sharper edges.
+
 
